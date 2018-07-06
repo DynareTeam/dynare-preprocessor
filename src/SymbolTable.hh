@@ -293,7 +293,7 @@ public:
   int addDiffAuxiliaryVar(int index, expr_t expr_arg) noexcept(false);
   int addDiffAuxiliaryVar(int index, expr_t expr_arg, int orig_symb_id, int orig_lag) noexcept(false);
   //! Takes care of timing between diff statements
-  int addDiffLagAuxiliaryVar(int index, expr_t expr_arg, int orig_symb_id, int orig_lag) noexcept(false);
+  int addDiffLagAuxiliaryVar(int index, expr_t expr_arg, int lag, int orig_symb_id, int orig_lag) noexcept(false);
   //! An Auxiliary variable for a unary op
   int addUnaryOpAuxiliaryVar(int index, expr_t expr_arg, int orig_symb_id = -1, int orig_lag = 0) noexcept(false);
   //! Returns the number of auxiliary variables

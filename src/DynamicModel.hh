@@ -432,7 +432,7 @@ public:
   void substituteUnaryOps(vector<int> &eqnumbers);
 
   //! Substitutes diff operator
-  void substituteDiff(StaticModel &static_model, ExprNode::subst_table_t &diff_subst_table);
+  void substituteDiff(ExprNode::subst_table_t &diff_subst_table);
 
   //! Table to undiff LHS variables for pac vector z
   void getUndiffLHSForPac(vector<int> &lhs, vector<expr_t> &lhs_expr_t, vector<bool> &diff, vector<int> &orig_diff_var,

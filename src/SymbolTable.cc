@@ -715,12 +715,14 @@ SymbolTable::addExpectationAuxiliaryVar(int information_set, int index, expr_t e
 }
 
 int
-SymbolTable::addDiffLagAuxiliaryVar(int index, expr_t expr_arg, int orig_symb_id, int orig_lag) noexcept(false)
+SymbolTable::addDiffLagAuxiliaryVar(int index, expr_t expr_arg,
+                                    int lag,
+                                    int orig_symb_id, int orig_lag) noexcept(false)
 {
   ostringstream varname;
   int symb_id;
 
-  varname << "AUX_DIFF_LAG_" << index;
+  varname << "AUX_DIFF_" << index << "_LAG_" << lag;
 
   try
     {

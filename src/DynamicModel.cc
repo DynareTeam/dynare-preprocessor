@@ -5399,7 +5399,7 @@ DynamicModel::substituteUnaryOps(vector<int> &eqnumbers)
 }
 
 void
-DynamicModel::substituteDiff(StaticModel &static_model, ExprNode::subst_table_t &diff_subst_table)
+DynamicModel::substituteDiff(ExprNode::subst_table_t &diff_subst_table)
 {
   set<int> used_local_vars;
   for (const auto & equation : equations)
@@ -5409,21 +5409,21 @@ DynamicModel::substituteDiff(StaticModel &static_model, ExprNode::subst_table_t 
   diff_table_t diff_table;
   for (auto & it : local_variables_table)
     if (used_local_vars.find(it.first) != used_local_vars.end())
-      it.second->findDiffNodes(static_model, diff_table);
+      it.second->findDiffNodes(diff_table);
 
   for (const auto & equation : equations)
-    equation->findDiffNodes(static_model, diff_table);
+    equation->findDiffNodes(diff_table);
 
   // Substitute in model local variables
   vector<BinaryOpNode *> neweqs;
   for (auto & it : local_variables_table)
-    it.second = it.second->substituteDiff(static_model, diff_table, diff_subst_table, neweqs);
+    it.second = it.second->substituteDiff(diff_table, diff_subst_table, neweqs);
 
   // Substitute in equations
   for (auto & equation : equations)
     {
       auto *substeq = dynamic_cast<BinaryOpNode *>(equation->
-                                                   substituteDiff(static_model, diff_table, diff_subst_table, neweqs));
+                                                   substituteDiff(diff_table, diff_subst_table, neweqs));
       assert(substeq != nullptr);
       equation = substeq;
     }

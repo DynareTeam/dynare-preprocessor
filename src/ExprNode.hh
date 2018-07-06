@@ -63,8 +63,8 @@ using eval_context_t = map<int, double>;
 using deriv_node_temp_terms_t = map<pair<int, vector<expr_t>>, int>;
 
 //! Type for the substitution map used in the process of substitutitng diff expressions
-//! diff_table[static_expr_t][lag] -> [dynamic_expr_t]
-using diff_table_t = map<expr_t, map<int, expr_t>>;
+//! diff_table[expr_t] -> lags
+using diff_table_t = map<UnaryOpNode *, set<int>>;
 
 using unary_op_aux_var_table_t = map<UnaryOpNode *, set<int>>;
 
@@ -507,9 +507,9 @@ class ExprNode
       virtual expr_t substituteAdl() const = 0;
 
       //! Substitute diff operator
-      virtual void findDiffNodes(DataTree &static_datatree, diff_table_t &diff_table) const = 0;
+      virtual void findDiffNodes(diff_table_t &diff_table) const = 0;
       virtual void findUnaryOpNodesForAuxVarCreation(unary_op_aux_var_table_t &nodes) const = 0;
-      virtual expr_t substituteDiff(DataTree &static_datatree, diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const = 0;
+      virtual expr_t substituteDiff(diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const = 0;
       virtual expr_t substituteUnaryOpNodes(unary_op_aux_var_table_t &nodes, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const = 0;
 
       //! Substitute pac_expectation operator
@@ -612,9 +612,9 @@ public:
   expr_t substituteExoLag(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteExpectation(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs, bool partial_information_model) const override;
   expr_t substituteAdl() const override;
-  void findDiffNodes(DataTree &static_datatree, diff_table_t &diff_table) const override;
+  void findDiffNodes(diff_table_t &diff_table) const override;
   void findUnaryOpNodesForAuxVarCreation(unary_op_aux_var_table_t &nodes) const override;
-  expr_t substituteDiff(DataTree &static_datatree, diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
+  expr_t substituteDiff(diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteUnaryOpNodes(unary_op_aux_var_table_t &nodes, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substitutePacExpectation(map<const PacExpectationNode *, const BinaryOpNode *> &subst_table) override;
   expr_t decreaseLeadsLagsPredeterminedVariables() const override;
@@ -704,9 +704,9 @@ public:
   expr_t substituteExoLag(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteExpectation(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs, bool partial_information_model) const override;
   expr_t substituteAdl() const override;
-  void findDiffNodes(DataTree &static_datatree, diff_table_t &diff_table) const override;
+  void findDiffNodes(diff_table_t &diff_table) const override;
   void findUnaryOpNodesForAuxVarCreation(unary_op_aux_var_table_t &nodes) const override;
-  expr_t substituteDiff(DataTree &static_datatree, diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
+  expr_t substituteDiff(diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteUnaryOpNodes(unary_op_aux_var_table_t &nodes, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substitutePacExpectation(map<const PacExpectationNode *, const BinaryOpNode *> &subst_table) override;
   expr_t decreaseLeadsLagsPredeterminedVariables() const override;
@@ -844,10 +844,10 @@ public:
   expr_t substituteExoLag(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteExpectation(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs, bool partial_information_model) const override;
   expr_t substituteAdl() const override;
-  void findDiffNodes(DataTree &static_datatree, diff_table_t &diff_table) const override;
+  void findDiffNodes(diff_table_t &diff_table) const override;
   bool createAuxVarForUnaryOpNode() const;
   void findUnaryOpNodesForAuxVarCreation(unary_op_aux_var_table_t &nodes) const override;
-  expr_t substituteDiff(DataTree &static_datatree, diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
+  expr_t substituteDiff(diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteUnaryOpNodes(unary_op_aux_var_table_t &nodes, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substitutePacExpectation(map<const PacExpectationNode *, const BinaryOpNode *> &subst_table) override;
   expr_t decreaseLeadsLagsPredeterminedVariables() const override;
@@ -982,9 +982,9 @@ public:
   expr_t substituteExoLag(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteExpectation(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs, bool partial_information_model) const override;
   expr_t substituteAdl() const override;
-  void findDiffNodes(DataTree &static_datatree, diff_table_t &diff_table) const override;
+  void findDiffNodes(diff_table_t &diff_table) const override;
   void findUnaryOpNodesForAuxVarCreation(unary_op_aux_var_table_t &nodes) const override;
-  expr_t substituteDiff(DataTree &static_datatree, diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
+  expr_t substituteDiff(diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteUnaryOpNodes(unary_op_aux_var_table_t &nodes, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substitutePacExpectation(map<const PacExpectationNode *, const BinaryOpNode *> &subst_table) override;
   expr_t decreaseLeadsLagsPredeterminedVariables() const override;
@@ -1110,9 +1110,9 @@ public:
   expr_t substituteExoLag(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteExpectation(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs, bool partial_information_model) const override;
   expr_t substituteAdl() const override;
-  void findDiffNodes(DataTree &static_datatree, diff_table_t &diff_table) const override;
+  void findDiffNodes(diff_table_t &diff_table) const override;
   void findUnaryOpNodesForAuxVarCreation(unary_op_aux_var_table_t &nodes) const override;
-  expr_t substituteDiff(DataTree &static_datatree, diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
+  expr_t substituteDiff(diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteUnaryOpNodes(unary_op_aux_var_table_t &nodes, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substitutePacExpectation(map<const PacExpectationNode *, const BinaryOpNode *> &subst_table) override;
   expr_t decreaseLeadsLagsPredeterminedVariables() const override;
@@ -1226,9 +1226,9 @@ public:
   expr_t substituteExoLag(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteExpectation(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs, bool partial_information_model) const override;
   expr_t substituteAdl() const override;
-  void findDiffNodes(DataTree &static_datatree, diff_table_t &diff_table) const override;
+  void findDiffNodes(diff_table_t &diff_table) const override;
   void findUnaryOpNodesForAuxVarCreation(unary_op_aux_var_table_t &nodes) const override;
-  expr_t substituteDiff(DataTree &static_datatree, diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
+  expr_t substituteDiff(diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteUnaryOpNodes(unary_op_aux_var_table_t &nodes, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substitutePacExpectation(map<const PacExpectationNode *, const BinaryOpNode *> &subst_table) override;
   virtual expr_t buildSimilarExternalFunctionNode(vector<expr_t> &alt_args, DataTree &alt_datatree) const = 0;
@@ -1445,9 +1445,9 @@ public:
   expr_t substituteExoLag(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteExpectation(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs, bool partial_information_model) const override;
   expr_t substituteAdl() const override;
-  void findDiffNodes(DataTree &static_datatree, diff_table_t &diff_table) const override;
+  void findDiffNodes(diff_table_t &diff_table) const override;
   void findUnaryOpNodesForAuxVarCreation(unary_op_aux_var_table_t &nodes) const override;
-  expr_t substituteDiff(DataTree &static_datatree, diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
+  expr_t substituteDiff(diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteUnaryOpNodes(unary_op_aux_var_table_t &nodes, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substitutePacExpectation(map<const PacExpectationNode *, const BinaryOpNode *> &subst_table) override;
   pair<int, expr_t> normalizeEquation(int symb_id_endo, vector<pair<int, pair<expr_t, expr_t>>>  &List_of_Op_RHS) const override;
@@ -1532,9 +1532,9 @@ public:
   expr_t substituteExoLag(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteExpectation(subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs, bool partial_information_model) const override;
   expr_t substituteAdl() const override;
-  void findDiffNodes(DataTree &static_datatree, diff_table_t &diff_table) const override;
+  void findDiffNodes(diff_table_t &diff_table) const override;
   void findUnaryOpNodesForAuxVarCreation(unary_op_aux_var_table_t &nodes) const override;
-  expr_t substituteDiff(DataTree &static_datatree, diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
+  expr_t substituteDiff(diff_table_t &diff_table, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substituteUnaryOpNodes(unary_op_aux_var_table_t &nodes, subst_table_t &subst_table, vector<BinaryOpNode *> &neweqs) const override;
   expr_t substitutePacExpectation(map<const PacExpectationNode *, const BinaryOpNode *> &subst_table) override;
   pair<int, expr_t> normalizeEquation(int symb_id_endo, vector<pair<int, pair<expr_t, expr_t>>>  &List_of_Op_RHS) const override;
